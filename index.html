@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Basslab 1.0a</h1>
+    <div>
+        <label for="note-duration">Note Duration (seconds):</label>
+        <input type="number" id="note-duration" value="1" min="0.1" step="0.1">
+    </div>
+    <div id="piano">
+        <div class="white-key" data-frequency="20">20.00 Hz E0</div>
+        <div class="white-key" data-frequency="22">22.00 Hz F0</div>
+        <div class="white-key" data-frequency="24">24.00 Hz G0</div>
+        <div class="white-key" data-frequency="25.95">25.95 Hz G#0</div>
+        <div class="white-key" data-frequency="27.50">27.50 Hz A0</div>
+        <div class="white-key" data-frequency="29.13">29.13 Hz A#0</div>
+        <div class="white-key" data-frequency="30.87">30.87 Hz B0</div>
+        <div class="white-key" data-frequency="32.70">32.70 Hz C1</div>
+        <div class="white-key" data-frequency="34.65">34.65 Hz C#1</div>
+        <div class="white-key" data-frequency="36.71">36.71 Hz D1</div>
+        <div class="white-key" data-frequency="38.89">38.89 Hz D#1</div>
+        <div class="white-key" data-frequency="41.20">41.20 Hz E1</div>
+        <div class="white-key" data-frequency="43.65">43.65 Hz F1</div>
+        <div class="white-key" data-frequency="46.25">46.25 Hz F#1</div>
+        <div class="white-key" data-frequency="49.00">49.00 Hz G1</div>
+        <div class="white-key" data-frequency="51.91">51.91 Hz G#1</div>
+        <div class="white-key" data-frequency="55.00">55.00 Hz A1</div>
+        <div class="white-key" data-frequency="58.27">58.27 Hz A#1</div>
+        <div class="white-key" data-frequency="61.74">61.74 Hz B1</div>
+        <div class="white-key" data-frequency="65.41">65.41 Hz C2</div>
+        <div class="white-key" data-frequency="69.30">69.30 Hz C#2</div>
+        <div class="white-key" data-frequency="73.42">73.42 Hz D2</div>
+        <div class="white-key" data-frequency="77.78">77.78 Hz D#2</div>
+        <div class="white-key" data-frequency="80.00">80.00 Hz E2</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
