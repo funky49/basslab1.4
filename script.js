@@ -1,6 +1,18 @@
+// Variables
 const piano = document.getElementById('piano');
 const keys = document.querySelectorAll('[data-frequency]');
 const durationInput = document.getElementById('note-duration'); // Get the duration input field
+const waveformSelect = document.getElementById('waveform'); // Get the waveform dropdown
+const filter120HzCheckbox = document.getElementById('filter-120hz');
+const filter90HzCheckbox = document.getElementById('filter-90hz');
+// Add references to the input fields
+const startFrequencyInput = document.getElementById("start-frequency");
+const turnaroundFrequencyInput = document.getElementById("turnaround-frequency");
+const sweepDurationInput = document.getElementById("sweep-duration");
+const sweepDurationValue = document.getElementById("sweep-duration-value");
+// Add an event listener to the sweep button
+const sweepButton = document.getElementById("sweep-button");
+const sweepRepeatsInput = document.getElementById("sweep-repeats");
 
 // Create an AudioContext
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -21,11 +33,28 @@ function playNote(frequency) {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
+    // Create a filter node
+    const filter = audioContext.createBiquadFilter();
+
+    // Check which filter is selected and set the cutoff frequency
+    if (filter120HzCheckbox.checked) {
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(120, audioContext.currentTime);
+    } else if (filter90HzCheckbox.checked) {
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(90, audioContext.currentTime);
+    } else {
+        filter.type = 'allpass'; // No filtering if neither is checked
+    }
+
     oscillator.connect(gainNode);
+    oscillator.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.type = 'sine';
+        // Set the oscillator type based on the selected waveform
+    oscillator.type = waveformSelect.value; // Get the selected waveform type';
     gainNode.gain.setValueAtTime(1, audioContext.currentTime);
 
     // Save the current oscillator and gain node
@@ -161,3 +190,153 @@ document.addEventListener('keyup', (event) => {
         }
     }
 });
+
+// Function to play a frequency drop from 90Hz to 20Hz
+function playFrequencySweep(startFrequency, endFrequency, duration) {
+    stopNote(); // Stop any currently playing sound
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.type = waveformSelect.value; // Use the selected waveform
+    gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+    // Set the starting frequency
+    oscillator.frequency.setValueAtTime(startFrequency, audioContext.currentTime);
+
+    // Sweep to the end frequency over the specified duration
+    oscillator.frequency.linearRampToValueAtTime(endFrequency, audioContext.currentTime + duration);
+
+    currentOscillator = oscillator;
+    currentGainNode = gainNode;
+
+    oscillator.start();
+
+    // Stop the oscillator after the sweep duration
+    setTimeout(() => {
+        stopNote();
+    }, duration * 1000); // Convert seconds to milliseconds
+}
+
+function playRepeatedSweep(startFreq, endFreq, duration, repeats) {
+    let currentRepeat = 0;
+
+    function playSingleSweep() {
+        if (currentRepeat >= repeats) return; // Stop if all sweeps are completed
+
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.type = waveformSelect.value; // Use the selected waveform
+        gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+        // Sweep from startFreq to endFreq and back
+        oscillator.frequency.setValueAtTime(startFreq, audioContext.currentTime);
+        oscillator.frequency.linearRampToValueAtTime(endFreq, audioContext.currentTime + duration / 2);
+        oscillator.frequency.linearRampToValueAtTime(startFreq, audioContext.currentTime + duration);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + duration);
+
+        oscillator.onended = () => {
+            currentRepeat++;
+            playSingleSweep(); // Play the next sweep
+        };
+    }
+
+    playSingleSweep(); // Start the first sweep
+}
+
+// Update the displayed duration value when the slider changes
+sweepDurationInput.addEventListener("input", () => {
+    sweepDurationValue.textContent = sweepDurationInput.value;
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Add an event listener to the drop9020-button
+    const dropButton = document.getElementById('drop9020-button');
+    const riseButton = document.getElementById('rise9020-button');
+
+    if (dropButton) {
+        dropButton.addEventListener('click', () => {
+            playFrequencySweep(90, 20, 5); // Sweep from 90Hz to 20Hz over 5 seconds
+        });
+    } else {
+        console.error('Button with ID "drop9020-button" not found.');
+    }
+
+    if (riseButton) {
+        riseButton.addEventListener('click', () => {
+            playFrequencySweep(20, 90, 5); // Sweep from 20Hz to 90Hz over 5 seconds
+        });
+    } else {
+        console.error('Button with ID "rise9020-button" not found.');
+    }
+});
+
+sweepButton.addEventListener("click", () => {
+    const duration = parseFloat(sweepDurationInput.value);
+    const startFreq = parseFloat(startFrequencyInput.value);
+    const turnaroundFreq = parseFloat(turnaroundFrequencyInput.value);
+    const repeats = parseInt(sweepRepeatsInput.value, 10);
+
+    // Validate the input frequencies and number of sweeps
+    if (isNaN(startFreq) || isNaN(turnaroundFreq) || startFreq <= 0 || turnaroundFreq <= 0) {
+        alert("Please enter valid frequencies for the start and turnaround notes.");
+        return;
+    }
+
+    if (isNaN(repeats) || repeats < 1 || repeats > 10) {
+        alert("Please enter a valid number of sweeps (1 to 10).");
+        return;
+    }
+
+    playRepeatedSweep(startFreq, turnaroundFreq, duration, repeats);
+});
+
+// Add an event listener to the Stop All Sounds button
+document.addEventListener("DOMContentLoaded", () => {
+    const stopButton = document.getElementById("stop-button");
+
+    if (stopButton) {
+        stopButton.addEventListener("click", () => {
+            stopNote(); // Call the stopNote function to stop all sounds
+        });
+    } else {
+        console.error('Button with ID "stop-button" not found.');
+    }
+});
+
+function playSweep(startFreq, endFreq, duration) {
+    stopNote(); // Stop any currently playing sound
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.type = waveformSelect.value; // Use the selected waveform
+    gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+    // Sweep from startFreq to endFreq and back
+    oscillator.frequency.setValueAtTime(startFreq, audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(endFreq, audioContext.currentTime + duration / 2);
+    oscillator.frequency.linearRampToValueAtTime(startFreq, audioContext.currentTime + duration);
+
+    currentOscillator = oscillator;
+    currentGainNode = gainNode;
+
+    oscillator.start();
+
+    // Stop the oscillator after the sweep duration
+    setTimeout(() => {
+        stopNote();
+    }, duration * 1000); // Convert seconds to milliseconds
+}
