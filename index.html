@@ -7,56 +7,60 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
+        .button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .frequency-display {
+            margin: 20px;
+            font-size: 24px;
             padding: 10px;
-        }
-        header {
-            background: #333;
-            color: #fff;
-            padding: 10px 0;
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+            background-color: white;
             text-align: center;
         }
-        main {
-            padding: 10px;
-            background: #fff;
-            border-radius: 8px;
+        .knob {
+            width: 100px;
+            height: 100px;
+            margin: 20px;
+            border-radius: 50%;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
-        footer {
-            text-align: center;
-            padding: 10px 0;
-            background: #333;
-            color: #fff;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
-        @media only screen and (max-width: 600px) {
-            body {
-                padding: 0;
+        @media (max-width: 414px) {
+            .button {
+                width: 100%;
             }
-            .container {
-                padding: 5px;
+            .frequency-display, .knob {
+                width: 80%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Welcome to BassLab</h1>
-        </header>
-        <main>
-            <p>This layout is optimized for mobile devices, particularly for iPhone Safari.</p>
-        </main>
-        <footer>
-            <p>&copy; 2026 Funky49</p>
-        </footer>
-    </div>
+    <button class="button">Stop</button>
+    <div class="frequency-display">Frequency: <span id="frequency">40Hz</span></div>
+    <div class="knob">25-55Hz</div>
+    <button class="button">MMMDROP (9 Seconds)</button>
+    <button class="button">Bass Drop (90Hz to 20Hz)</button>
+    <button class="button">Bass Rise (20Hz to 90Hz)</button>
 </body>
 </html>
